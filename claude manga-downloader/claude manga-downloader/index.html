@@ -1,0 +1,763 @@
+<!DOCTYPE html>
+<html lang="tr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manga Downloader - Full Version</title>
+    <link rel="manifest" href="/static/manifest.json">
+    <meta name="theme-color" content="#8b5cf6">
+    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/3330/3330314.png">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@600;700&display=swap"
+        rel="stylesheet">
+    <style>
+        @keyframes gridMove {
+            0% {
+                transform: translate(0, 0);
+            }
+
+            100% {
+                transform: translate(50px, 50px);
+            }
+        }
+
+        @keyframes shimmer {
+            0% {
+                background-position: 0% 50%;
+            }
+
+            100% {
+                background-position: 200% 50%;
+            }
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                opacity: 0.2;
+            }
+
+            50% {
+                opacity: 0.3;
+            }
+        }
+
+        @keyframes bounce {
+
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+
+            50% {
+                transform: translateY(-10px);
+            }
+        }
+
+        /* Scrollbar Styling - Navy Theme */
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 10px;
+            /* Slightly thinner for mobile elegance */
+            height: 0px;
+            /* Hide horizontal scrollbar visually */
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: rgba(10, 25, 47, 0.8);
+            border-left: 1px solid rgba(56, 189, 248, 0.1);
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: linear-gradient(to bottom, #3b82f6, #06b6d4);
+            border: 2px solid rgba(10, 25, 47, 1);
+            border-radius: 10px;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(to bottom, #2563eb, #0891b2);
+        }
+
+        .animated-grid {
+            background-image: linear-gradient(rgba(56, 189, 248, 0.1) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(56, 189, 248, 0.1) 1px, transparent 1px);
+            background-size: 50px 50px;
+            animation: gridMove 20s linear infinite;
+        }
+
+        .orb1 {
+            animation: pulse 4s ease-in-out infinite;
+        }
+
+        .orb2 {
+            animation: pulse 5s ease-in-out infinite 1s;
+        }
+
+        .shimmer-text {
+            background: linear-gradient(to right, #60a5fa, #22d3ee, #60a5fa);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-size: 200% auto;
+            animation: shimmer 3s linear infinite;
+        }
+
+        .bounce-icon {
+            animation: bounce 3s ease-in-out infinite;
+        }
+
+        .progress-bar {
+            transition: width 0.3s ease;
+        }
+    </style>
+</head>
+
+<body class="min-h-screen bg-[#020617] text-white overflow-x-hidden relative select-none">
+    <!-- Deep Navy Background Gradient -->
+    <div class="fixed inset-0 bg-gradient-to-br from-[#020617] via-[#0f172a] to-[#172554] -z-20"></div>
+
+    <!-- Animated background grid -->
+    <div class="fixed inset-0 opacity-10 -z-10">
+        <div class="absolute inset-0 animated-grid"></div>
+    </div>
+
+    <!-- Glowing orbs (Blue/Cyan) -->
+    <div
+        class="absolute top-20 left-10 w-64 h-64 bg-blue-600 rounded-full blur-[100px] opacity-10 orb1 pointer-events-none">
+    </div>
+    <div
+        class="absolute bottom-20 right-10 w-64 h-64 bg-cyan-600 rounded-full blur-[100px] opacity-10 orb2 pointer-events-none">
+    </div>
+
+    <div class="relative z-10 container mx-auto px-4 py-6 max-w-2xl">
+        <!-- Header -->
+        <div class="text-center mb-8 mt-4">
+            <div class="inline-block mb-2 relative">
+                <svg class="w-12 h-12 mx-auto text-cyan-400 bounce-icon" fill="none" stroke="currentColor"
+                    viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253">
+                    </path>
+                </svg>
+            </div>
+            <h1 class="text-4xl md:text-5xl font-black mb-2 tracking-tight shimmer-text"
+                style="font-family: 'Orbitron', monospace;">
+                MANGA DOWNLOADER
+            </h1>
+            <p class="text-blue-300/70 text-sm font-mono tracking-wider">
+                &gt; Link yapıştır • Seç • İndir
+            </p>
+        </div>
+
+        <!-- Notification / Status Banner -->
+        <div
+            class="bg-[#0f172a]/90 backdrop-blur-md border border-blue-500/20 rounded-xl p-4 mb-6 shadow-xl shadow-blue-900/10">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                    <div class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
+                    <span class="font-mono text-xs text-blue-200">Sistem: <span id="backendStatus"
+                            class="font-bold">Bağlanıyor...</span></span>
+                </div>
+                <!-- Hidden input for cleanliness -->
+                <input type="hidden" id="backendUrl" value="http://localhost:5000" />
+            </div>
+        </div>
+
+        <!-- Navigation Tabs -->
+        <div class="flex p-1 bg-[#0f172a] rounded-xl mb-6 shadow-lg border border-white/5">
+            <button onclick="switchTab('screenshot')" id="tabScreenshot"
+                class="flex-1 py-3 rounded-lg font-bold text-sm tracking-wide transition-all bg-gradient-to-r from-blue-600 to-cyan-600 shadow-lg text-white">
+                📸 FOTO
+            </button>
+            <button onclick="switchTab('scan')" id="tabScan"
+                class="flex-1 py-3 rounded-lg font-bold text-sm tracking-wide transition-all text-gray-400 hover:text-white">
+                🔍 TARA
+            </button>
+            <button onclick="switchTab('tracking')" id="tabTracking"
+                class="flex-1 py-3 rounded-lg font-bold text-sm tracking-wide transition-all text-gray-400 hover:text-white">
+                🔖 TAKİP
+            </button>
+        </div>
+
+        <!-- Screenshot Mode -->
+        <div id="screenshotMode">
+            <div class="bg-[#1e293b]/50 backdrop-blur-sm border border-blue-500/20 rounded-2xl p-6 mb-6">
+                <div class="relative group mb-4">
+                    <input type="text" id="screenshotUrl" placeholder="Sayfa Linki Yapıştır..."
+                        class="w-full bg-[#020617] border border-blue-500/30 rounded-xl px-4 py-4 text-white placeholder-gray-500 focus:outline-none focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400/50 transition-all font-mono text-sm" />
+                </div>
+                <button onclick="takeScreenshotPdf()" id="screenshotBtn"
+                    class="w-full py-4 bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-500 hover:to-cyan-500 rounded-xl font-bold tracking-wider transition-all active:scale-95 shadow-lg shadow-blue-500/20 flex items-center justify-center gap-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+                    </svg>
+                    PDF İNDİR
+                </button>
+            </div>
+
+            <!-- Progress -->
+            <div id="screenshotProgress"
+                class="hidden bg-[#1e293b]/80 backdrop-blur-md border border-blue-500/20 rounded-2xl p-8 mb-8 text-center">
+                <svg class="w-10 h-10 mx-auto text-cyan-400 animate-spin mb-4" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor"
+                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                    </path>
+                </svg>
+                <div class="text-lg font-bold text-white mb-1" id="screenshotStatusTitle">İŞLENİYOR</div>
+                <div class="text-blue-300/70 text-xs font-mono" id="screenshotStatusText">Lütfen bekleyin...</div>
+            </div>
+        </div>
+
+        <!-- Tracking Mode -->
+        <div id="trackingMode" class="hidden">
+            <div class="flex justify-end mb-4">
+                <button onclick="checkUpdates()" id="refreshBtn"
+                    class="px-4 py-2 bg-[#1e293b] border border-cyan-500/30 text-cyan-400 rounded-lg text-xs font-bold hover:bg-cyan-950 transition-all flex items-center gap-2">
+                    KONTROL ET ↻
+                </button>
+            </div>
+            <div id="trackingList" class="grid grid-cols-1 gap-3"></div>
+            <div id="trackingEmpty" class="hidden text-center py-10 text-gray-500 text-sm">Hiç manga yok.</div>
+        </div>
+
+        <!-- Chapters Mode -->
+        <div id="chaptersMode" class="hidden">
+            <div class="bg-[#1e293b]/50 backdrop-blur-sm border border-blue-500/20 rounded-2xl p-6 mb-6 shadow-lg">
+                <div class="relative mb-4">
+                    <input type="text" id="mangaUrl" placeholder="Manga Linki (Seri veya Bölüm)..."
+                        class="w-full bg-[#020617] border border-blue-500/30 rounded-xl px-4 py-4 text-white placeholder-gray-500 focus:outline-none focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400/50 transition-all font-mono text-sm" />
+                </div>
+                <button onclick="fetchChapters()" id="scanBtn"
+                    class="w-full py-4 bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-500 hover:to-cyan-500 rounded-xl font-bold tracking-wider transition-all active:scale-95 shadow-lg shadow-blue-500/20">
+                    LİSTELE
+                </button>
+            </div>
+
+            <!-- Loading -->
+            <div id="loadingState" class="hidden text-center py-10">
+                <svg class="w-10 h-10 mx-auto text-cyan-400 animate-spin mb-3" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor"
+                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                    </path>
+                </svg>
+                <p class="text-blue-200 text-sm">Aranıyor...</p>
+            </div>
+
+            <!-- Empty State -->
+            <div id="emptyState" class="hidden text-center py-10 text-gray-500 text-sm">
+                Henüz bir arama yapmadınız.
+            </div>
+
+            <!-- Download Progress -->
+            <div id="downloadProgress" class="hidden bg-[#1e293b] border border-blue-500/30 rounded-2xl p-6 mb-6">
+                <div class="flex justify-between text-sm mb-2 text-blue-200">
+                    <span class="font-bold">İNDİRİLİYOR</span>
+                    <span id="progressText" class="font-mono">0%</span>
+                </div>
+                <div class="w-full bg-[#020617] rounded-full h-3 overflow-hidden">
+                    <div id="progressBar"
+                        class="h-full bg-gradient-to-r from-blue-500 to-cyan-400 transition-all duration-300"
+                        style="width: 0%"></div>
+                </div>
+            </div>
+
+            <!-- Chapter List -->
+            <div id="chapterList"
+                class="hidden bg-[#1e293b]/80 backdrop-blur-md border border-blue-500/20 rounded-2xl p-4 shadow-2xl">
+                <div class="flex items-center justify-between mb-4 pb-4 border-b border-white/5">
+                    <h2 id="mangaTitle" class="text-xl font-bold text-white truncate max-w-[60%]">Başlık</h2>
+                    <div class="flex gap-2">
+                        <button onclick="addToTracking()" id="trackBtn"
+                            class="px-3 py-1.5 bg-blue-900/50 hover:bg-blue-800 text-blue-200 rounded-lg text-xs font-bold border border-blue-500/30">
+                            ★ TAKİP
+                        </button>
+                        <button onclick="toggleSelectAll()"
+                            class="px-3 py-1.5 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded-lg text-xs border border-white/10 flex items-center gap-1">
+                            <span id="selectAllText">Tümü</span>
+                            <span class="opacity-50">(<span id="totalCount">0</span>)</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- SCROLL CONTAINER with hidden-x -->
+                <div id="chapters"
+                    class="space-y-2 mb-4 max-h-[60vh] overflow-y-auto overflow-x-hidden custom-scrollbar pr-1">
+                    <!-- Items -->
+                </div>
+
+                <div class="pt-2">
+                    <button onclick="downloadChapters()" id="downloadBtn"
+                        class="w-full py-4 bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-500 hover:to-cyan-500 disabled:opacity-50 disabled:cursor-not-allowed rounded-xl font-bold tracking-wider transition-all shadow-lg shadow-cyan-500/20 flex justify-center items-center gap-2"
+                        disabled>
+                        <span>İNDİR</span>
+                        <span id="selectedCount" class="bg-black/20 px-2 py-0.5 rounded text-xs">0</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Keep existing Logic
+        let selectedChapters = new Set();
+        let allChapters = [];
+        let mangaTitle = '';
+        let currentMode = 'screenshot';
+
+        window.addEventListener('load', checkBackendStatus);
+
+        function getBackendUrl() {
+            // Auto-detect URL: if served via HTTP/S, use origin. If file://, use localhost:5000
+            if (window.location.protocol.startsWith('http')) {
+                return window.location.origin;
+            }
+            return 'http://localhost:5000';
+        }
+
+        function switchTab(mode) {
+            const tabs = {
+                'screenshot': document.getElementById('tabScreenshot'),
+                'scan': document.getElementById('tabScan'),
+                'tracking': document.getElementById('tabTracking')
+            };
+            const views = {
+                'screenshot': document.getElementById('screenshotMode'),
+                'scan': document.getElementById('chaptersMode'),
+                'tracking': document.getElementById('trackingMode')
+            };
+
+            // Reset UI
+            Object.values(tabs).forEach(t => t && (t.className = 'flex-1 py-3 rounded-lg font-bold text-sm tracking-wide transition-all text-gray-400 hover:text-white'));
+            Object.values(views).forEach(v => v && v.classList.add('hidden'));
+
+            // Activate
+            if (tabs[mode]) tabs[mode].className = 'flex-1 py-3 rounded-lg font-bold text-sm tracking-wide transition-all bg-gradient-to-r from-blue-600 to-cyan-600 shadow-lg text-white';
+            if (views[mode]) views[mode].classList.remove('hidden');
+
+            if (mode === 'tracking') loadTrackingList();
+        }
+
+        async function checkBackendStatus() {
+            const backendUrl = getBackendUrl();
+            // Update the hidden input for other functions to use
+            document.getElementById('backendUrl').value = backendUrl;
+
+            try {
+                // Add timeout to prevent hanging
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 3000);
+
+                const response = await fetch(`${backendUrl}/health`, {
+                    signal: controller.signal,
+                    mode: 'cors'
+                });
+
+                if (response.ok) {
+                    document.getElementById('backendStatus').textContent = 'Bağlı ✓';
+                    document.getElementById('backendStatus').classList.remove('text-blue-200');
+                    document.getElementById('backendStatus').classList.add('text-green-400');
+                } else {
+                    throw new Error('Backend offline');
+                }
+            } catch (error) {
+                console.error("Connection failed:", error);
+                document.getElementById('backendStatus').innerHTML = 'Bağlantı Yok <span class="text-xs opacity-70">(Sunucu Kapalı?)</span>';
+                document.getElementById('backendStatus').classList.remove('text-blue-200');
+                document.getElementById('backendStatus').classList.add('text-red-400');
+            }
+        }
+
+        function displayChapters() {
+            const container = document.getElementById('chapters');
+            container.innerHTML = '';
+
+            allChapters.forEach((chapter, index) => {
+                const isSelected = selectedChapters.has(index);
+                const div = document.createElement('div');
+                // Use w-full and truncate to prevent overflow-x
+                div.className = `w-full p-3 rounded-lg cursor-pointer transition-all border ${isSelected
+                    ? 'bg-blue-900/40 border-cyan-500/50'
+                    : 'bg-[#0f172a] border-white/5 hover:border-white/10'}`;
+
+                div.onclick = () => toggleChapter(index);
+
+                div.innerHTML = `
+                    <div class="flex items-center gap-3">
+                        <div class="w-5 h-5 rounded border flex-shrink-0 flex items-center justify-center transition-all ${isSelected
+                        ? 'bg-cyan-500 border-cyan-400 text-black'
+                        : 'border-slate-600 bg-slate-900'
+                    }">
+                           ${isSelected ? '✓' : ''}
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <div class="font-mono text-cyan-400 text-xs truncate">Ch. ${chapter.number}</div>
+                            <div class="font-medium text-sm text-gray-200 truncate">${chapter.title}</div>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(div);
+            });
+
+            document.getElementById('chapterList').classList.remove('hidden');
+            updateCounts();
+        }
+
+        function toggleChapter(index) {
+            if (selectedChapters.has(index)) {
+                selectedChapters.delete(index);
+            } else {
+                selectedChapters.add(index);
+            }
+            displayChapters();
+        }
+
+        function toggleSelectAll() {
+            if (selectedChapters.size === allChapters.length) {
+                selectedChapters.clear();
+            } else {
+                selectedChapters = new Set(allChapters.map((_, i) => i));
+            }
+            displayChapters();
+        }
+
+        function updateCounts() {
+            document.getElementById('selectedCount').textContent = selectedChapters.size;
+            document.getElementById('totalCount').textContent = allChapters.length;
+            document.getElementById('selectAllText').textContent =
+                selectedChapters.size === allChapters.length ? 'Tümünü Kaldır' : 'Tümünü Seç';
+            document.getElementById('downloadBtn').disabled = selectedChapters.size === 0;
+        }
+
+        async function fetchChapters() {
+            const url = document.getElementById('mangaUrl').value.trim();
+            const backendUrl = getBackendUrl();
+
+            if (!url) {
+                alert('Lütfen bir manga linki girin!');
+                return;
+            }
+
+            // Show loading
+            document.getElementById('emptyState').classList.add('hidden');
+            document.getElementById('chapterList').classList.add('hidden');
+            document.getElementById('loadingState').classList.remove('hidden');
+
+            try {
+                const response = await fetch(`${backendUrl}/api/scrape`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ url })
+                });
+
+                if (!response.ok) {
+                    throw new Error('Backend hatası');
+                }
+
+                const data = await response.json();
+
+                if (data.error) {
+                    throw new Error(data.error);
+                }
+
+                allChapters = data.chapters || [];
+                mangaTitle = data.title || 'Unknown Manga';
+                selectedChapters.clear();
+
+                document.getElementById('mangaTitle').textContent = mangaTitle;
+                document.getElementById('loadingState').classList.add('hidden');
+
+                if (allChapters.length === 0) {
+                    alert('Chapter bulunamadı. Lütfen başka bir link deneyin.');
+                    document.getElementById('emptyState').classList.remove('hidden');
+                } else {
+                    displayChapters();
+                }
+
+            } catch (error) {
+                document.getElementById('loadingState').classList.add('hidden');
+                alert('Bir hata oluştu: ' + error.message + '\n\nBackend çalışıyor mu kontrol edin.');
+                document.getElementById('emptyState').classList.remove('hidden');
+            }
+        }
+
+        async function downloadChapters() {
+            if (selectedChapters.size === 0) {
+                alert('Lütfen en az bir chapter seçin!');
+                return;
+            }
+
+            const backendUrl = getBackendUrl();
+            const selectedChapterData = Array.from(selectedChapters).map(i => allChapters[i]);
+
+            // Show progress
+            document.getElementById('chapterList').classList.add('hidden');
+            document.getElementById('downloadProgress').classList.remove('hidden');
+            document.getElementById('progressText').textContent = `${selectedChapterData.length} chapter indiriliyor...`;
+            document.getElementById('progressBar').style.width = '30%';
+
+            try {
+                const response = await fetch(`${backendUrl}/api/download`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        chapters: selectedChapterData,
+                        title: mangaTitle
+                    })
+                });
+
+                document.getElementById('progressBar').style.width = '60%';
+                document.getElementById('progressText').textContent = 'PDF oluşturuluyor...';
+
+                if (!response.ok) {
+                    throw new Error('İndirme hatası');
+                }
+
+                // Download the file
+                const blob = await response.blob();
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+
+                const isMultiple = selectedChapters.size > 1;
+                const extension = isMultiple ? 'zip' : 'pdf';
+                const suffix = isMultiple ? '_Chapters' : '_Chapter';
+
+                a.download = `${mangaTitle.replace(/[^a-z0-9]/gi, '_')}${suffix}.${extension}`;
+                document.body.appendChild(a);
+                a.click();
+                window.URL.revokeObjectURL(url);
+                document.body.removeChild(a);
+
+                document.getElementById('progressBar').style.width = '100%';
+                document.getElementById('progressText').textContent = 'Tamamlandı! ✓';
+
+                setTimeout(() => {
+                    document.getElementById('downloadProgress').classList.add('hidden');
+                    document.getElementById('chapterList').classList.remove('hidden');
+                    document.getElementById('progressBar').style.width = '0%';
+                }, 2000);
+
+            } catch (error) {
+                document.getElementById('downloadProgress').classList.add('hidden');
+                document.getElementById('chapterList').classList.remove('hidden');
+                alert('İndirme hatası: ' + error.message);
+            }
+        }
+
+        // --- TRACKING SYSTEM ---
+        // (Combined with main switchTab logic to avoid duplication)
+
+        async function loadTrackingList() {
+            const backendUrl = getBackendUrl();
+            const container = document.getElementById('trackingList');
+            const emptyState = document.getElementById('trackingEmpty');
+
+            container.innerHTML = '<div class="col-span-full text-center text-blue-300 animate-pulse">Yükleniyor...</div>';
+
+            try {
+                const res = await fetch(`${backendUrl}/api/track/list`);
+                const data = await res.json();
+
+                container.innerHTML = '';
+                const items = Object.values(data);
+
+                if (items.length === 0) {
+                    emptyState.classList.remove('hidden');
+                    return;
+                }
+
+                emptyState.classList.add('hidden');
+                items.forEach(item => {
+                    const card = document.createElement('div');
+                    card.className = 'bg-[#1e293b]/80 border border-blue-500/30 rounded-xl p-4 hover:border-cyan-400 transition-all group relative';
+
+                    const newBadge = (item.new_chapters && item.new_chapters.length > 0)
+                        ? `<div class="absolute -top-2 -right-2 bg-green-500 text-black font-bold px-2 py-1 rounded-full text-xs animate-bounce">YENİ BÖLÜM!</div>`
+                        : '';
+
+                    card.innerHTML = `
+                        ${newBadge}
+                        <h3 class="font-bold text-lg mb-2 truncate text-white" title="${item.title}">${item.title}</h3>
+                        <div class="flex justify-between items-center text-sm text-blue-300/70 font-mono mb-4">
+                            <span>Son: ${item.last_chapter}</span>
+                            <span>Site: ${item.site}</span>
+                        </div>
+                        <div class="flex gap-2">
+                             <button onclick="readManga('${item.url}')" class="flex-1 py-1.5 bg-blue-600/20 hover:bg-blue-600/40 text-blue-300 rounded-lg text-sm font-bold transition-all border border-blue-500/20 hover:border-blue-500/50">
+                                OKU
+                             </button>
+                             <button onclick="removeFromTracking('${item.url}')" class="px-3 py-1 bg-red-500/10 hover:bg-red-500/30 text-red-400 rounded-lg transition-all border border-red-500/20">
+                                🗑️
+                             </button>
+                        </div>
+                    `;
+                    container.appendChild(card);
+                });
+
+            } catch (e) {
+                console.error(e);
+                container.innerHTML = '<div class="col-span-full text-center text-red-400">Liste yüklenemedi.</div>';
+            }
+        }
+
+        async function addToTracking() {
+            const url = document.getElementById('mangaUrl').value;
+            const backendUrl = document.getElementById('backendUrl').value;
+
+            if (!url) { alert('URL yok!'); return; }
+
+            const btn = document.getElementById('trackBtn');
+            const originalText = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = 'EKLENİYOR...';
+
+            try {
+                const res = await fetch(`${backendUrl}/api/track/add`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ url })
+                });
+                const data = await res.json();
+
+                if (data.status === 'success' || data.status === 'exists') {
+                    btn.innerHTML = '✓ EKLENDİ';
+                    btn.classList.add('bg-green-600', 'text-white');
+                    setTimeout(() => {
+                        btn.innerHTML = originalText;
+                        btn.disabled = false;
+                        btn.classList.remove('bg-green-600', 'text-white');
+                    }, 2000);
+                } else {
+                    alert('Hata: ' + (data.message || 'Bilinmeyen hata'));
+                    btn.innerHTML = originalText;
+                    btn.disabled = false;
+                }
+            } catch (e) {
+                console.error(e);
+                alert('Bağlantı hatası');
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            }
+        }
+
+        async function removeFromTracking(url) {
+            if (!confirm('Bu mangayı takip listesinden silmek istediğinize emin misiniz?')) return;
+            const backendUrl = document.getElementById('backendUrl').value;
+            try {
+                await fetch(`${backendUrl}/api/track/remove`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ url })
+                });
+                loadTrackingList();
+            } catch (e) {
+                console.error(e);
+                alert('Silinemedi');
+            }
+        }
+
+        async function checkUpdates() {
+            const backendUrl = document.getElementById('backendUrl').value;
+            const btn = document.getElementById('refreshBtn');
+            btn.disabled = true;
+            btn.innerHTML = 'KONTROL EDİLİYOR...';
+
+            try {
+                const res = await fetch(`${backendUrl}/api/track/check`, { method: 'POST' });
+                const data = await res.json();
+                loadTrackingList();
+                alert(`${data.checked} manga kontrol edildi.`);
+            } catch (e) {
+                console.error(e);
+                alert('Güncelleme kontrolü başarısız.');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = `
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                    </svg>
+                    KONTROL ET
+                `;
+            }
+        }
+
+        function readManga(url) {
+            document.getElementById('mangaUrl').value = url;
+            switchTab('scan');
+            fetchChapters();
+        }
+
+        async function takeScreenshotPdf() {
+            const url = document.getElementById('screenshotUrl').value.trim();
+            const backendUrl = document.getElementById('backendUrl').value;
+
+            if (!url) {
+                alert('Lütfen bir URL girin!');
+                return;
+            }
+
+            // Show progress
+            document.getElementById('screenshotProgress').classList.remove('hidden');
+            document.getElementById('screenshotStatusTitle').textContent = 'ANALİZ EDİLİYOR...';
+            document.getElementById('screenshotStatusText').textContent = 'Sayfa içeriği taranıyor...';
+
+            try {
+                // Update status simulation
+                setTimeout(() => {
+                    document.getElementById('screenshotStatusTitle').textContent = 'RESİMLER ÇEKİLİYOR...';
+                    document.getElementById('screenshotStatusText').textContent = 'Görseller indiriliyor ve işleniyor...';
+                }, 2000);
+
+                const response = await fetch(`${backendUrl}/api/screenshot-pdf`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ url })
+                });
+
+                if (!response.ok) {
+                    const error = await response.json();
+                    throw new Error(error.error || 'Bir hata oluştu');
+                }
+
+                document.getElementById('screenshotStatusTitle').textContent = 'PDF OLUŞTURULDU!';
+                document.getElementById('screenshotStatusText').textContent = 'İndirme başlıyor...';
+
+                // Download the PDF
+                const blob = await response.blob();
+                const downloadUrl = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = downloadUrl;
+                a.download = `screenshot_${Date.now()}.pdf`;
+                document.body.appendChild(a);
+                a.click();
+                window.URL.revokeObjectURL(downloadUrl);
+                document.body.removeChild(a);
+
+                // Hide progress
+                setTimeout(() => {
+                    document.getElementById('screenshotProgress').classList.add('hidden');
+                }, 1500);
+
+            } catch (error) {
+                console.error('Screenshot error:', error);
+                document.getElementById('screenshotProgress').classList.add('hidden');
+                alert('Hata: ' + error.message);
+            }
+        }
+
+    </script>
+</body>
+
+</html>
